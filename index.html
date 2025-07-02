@@ -8,35 +8,44 @@
       font-family: Arial, sans-serif;
       background: #8a6f6f;
       margin: 0;
-      padding: 20px;
+      padding: 30px;
     }
 
-    .container {
+    .player-container {
       max-width: 700px;
-      margin: 0 auto;
-      text-align: center;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     h2 {
-      color: white;
-      margin-bottom: 20px;
+      margin-top: 0;
+      color: #333;
     }
 
-    label {
-      color: white;
-      font-weight: bold;
-      margin-right: 10px;
+    .dropdown {
+      margin-bottom: 15px;
     }
 
     select {
-      font-size: 15px;
-      padding: 5px;
-      margin-bottom: 20px;
+      font-size: 16px;
+      padding: 5px 10px;
     }
 
-    audio {
+    .progress-container {
       width: 100%;
-      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      flex: 1;
     }
 
     .controls {
@@ -44,14 +53,14 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     .controls button {
       background-color: #007bff;
       color: white;
       border: none;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 4px;
       font-size: 14px;
       cursor: pointer;
@@ -61,27 +70,35 @@
       background-color: #0056b3;
     }
 
-    .info {
+    .status {
       margin-top: 10px;
       font-weight: bold;
-      color: white;
+      color: #444;
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="player-container">
     <h2>Audio Player</h2>
 
-    <label for="trackSelector">Choose a track:</label>
-    <select id="trackSelector" onchange="changeTrack(this.value)">
-      <option value="4. Homework P1.mp3">4. Homework P1</option>
-      <option value="5. Homework P2.mp3">5. Homework P2</option>
-    </select>
+    <div class="dropdown">
+      <label for="trackSelector"><strong>Choose a track:</strong></label>
+      <select id="trackSelector" onchange="changeTrack(this.value)">
+        <option value="4. Homework P1.mp3">4. Homework P1</option>
+        <option value="5. Homework P2.mp3">5. Homework P2</option>
+      </select>
+    </div>
 
-    <audio id="audio" preload="auto" controls>
+    <audio id="audio" preload="auto">
       <source id="audioSource" src="4. Homework P1.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
+
+    <div class="progress-container">
+      <span id="currentTime">0:00</span>
+      <input type="range" id="progressBar" value="0" min="0" max="100">
+      <span id="duration">0:00</span>
+    </div>
 
     <div class="controls">
       <button onclick="rewind()">⏪ 10s</button>
@@ -93,12 +110,15 @@
       <button onclick="increaseSpeed()">⏫ Speed +</button>
     </div>
 
-    <div class="info" id="status">Volume: 100% | Speed: 1.00x</div>
+    <div class="status" id="status">Volume: 100% | Speed: 1.00x</div>
   </div>
 
   <script>
     const audio = document.getElementById("audio");
     const source = document.getElementById("audioSource");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeLabel = document.getElementById("currentTime");
+    const durationLabel = document.getElementById("duration");
     const status = document.getElementById("status");
 
     function togglePlay() {
@@ -146,6 +166,25 @@
     function updateStatus() {
       status.textContent = `Volume: ${Math.round(audio.volume * 100)}% | Speed: ${audio.playbackRate.toFixed(2)}x`;
     }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' + secs : secs}`;
+    }
+
+    audio.addEventListener("timeupdate", () => {
+      progressBar.value = (audio.currentTime / audio.duration) * 100 || 0;
+      currentTimeLabel.textContent = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      durationLabel.textContent = formatTime(audio.duration);
+    });
+
+    progressBar.addEventListener("input", () => {
+      audio.currentTime = (progressBar.value / 100) * audio.duration;
+    });
 
     updateStatus();
   </script>
