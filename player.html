@@ -7,20 +7,20 @@
     body {
       font-family: Arial, sans-serif;
       padding: 4px;
-      background: rgb(50, 3, 3,0.5);
+      background: rgba(50, 3, 3, 0.5);
     }
     .container {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-}
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
     .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  margin-top: 10px;
-}
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
     .controls button {
       background: #007bff;
       color: white;
@@ -39,31 +39,52 @@
       color: white;
       font-weight: bold;
     }
+    select {
+      margin-bottom: 10px;
+      font-size: 14px;
+      padding: 4px;
+    }
+    label {
+      color: white;
+      font-weight: bold;
+      margin-right: 6px;
+    }
   </style>
 </head>
 <body>
-<div class="container">
-  <b style="color: white;">Audio Player</b>
-  
-  <audio id="audio" preload="auto">
-    <source src="26-AudioTrack%2026.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+  <div class="container">
+    <b style="color: white;">Audio Player</b><br><br>
 
-  <div class="controls">
-    <button onclick="rewind()">⏪ 10s</button>
-    <button onclick="togglePlay()">▶️ / ⏸️</button>
-    <button onclick="forward()">⏩ 10s</button><br>
-    <button onclick="decreaseVolume()">🔉 Volume -</button>
-    <button onclick="increaseVolume()">🔊 Volume +</button><br>
-    <button onclick="decreaseSpeed()">⏬ Speed -</button>
-    <button onclick="increaseSpeed()">⏫ Speed +</button>
+    <!-- Dropdown to choose audio track -->
+    <label for="trackSelector">Choose a track:</label>
+    <select id="trackSelector" onchange="changeTrack(this.value)">
+      <option value="4. Homework P1.mp3">4. Homework P1</option>
+      <option value="5. Homework P2.mp3">5. Homework P2</option>
+    </select>
+
+    <!-- Audio element -->
+    <audio id="audio" preload="auto" controls>
+      <source id="audioSource" src="4. Homework P1.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+    <!-- Playback controls -->
+    <div class="controls">
+      <button onclick="rewind()">⏪ 10s</button>
+      <button onclick="togglePlay()">▶️ / ⏸️</button>
+      <button onclick="forward()">⏩ 10s</button><br>
+      <button onclick="decreaseVolume()">🔉 Volume -</button>
+      <button onclick="increaseVolume()">🔊 Volume +</button><br>
+      <button onclick="decreaseSpeed()">⏬ Speed -</button>
+      <button onclick="increaseSpeed()">⏫ Speed +</button>
+    </div>
+
+    <div class="info" id="status">Volume: 100% | Speed: 1.00x</div>
   </div>
 
-  <div class="info" id="status">Volume: 100% | Speed: 1.0x</div>
-</div>
   <script>
     const audio = document.getElementById("audio");
+    const source = document.getElementById("audioSource");
     const status = document.getElementById("status");
 
     function togglePlay() {
@@ -96,6 +117,7 @@
       audio.playbackRate = Math.min(3, audio.playbackRate + 0.1);
       updateStatus();
     }
+
     function decreaseSpeed() {
       audio.playbackRate = Math.max(0.5, audio.playbackRate - 0.1);
       updateStatus();
@@ -105,8 +127,13 @@
       status.textContent = `Volume: ${Math.round(audio.volume * 100)}% | Speed: ${audio.playbackRate.toFixed(2)}x`;
     }
 
+    function changeTrack(filename) {
+      source.src = filename;
+      audio.load();   // Load new source
+      audio.play();   // Optional: auto-play after switching
+    }
+
     updateStatus();
   </script>
-
 </body>
 </html>
